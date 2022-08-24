@@ -5,7 +5,7 @@ import {
   Table,
 } from "@serverless-stack/resources";
 
-export function MyStack({ stack }: StackContext) {
+export function MyStack({ stack }) {
   const api = new Api(stack, "api", {
     routes: {
       "GET /": "functions/lambda.handler",

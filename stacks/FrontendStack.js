@@ -14,12 +14,12 @@ export function FrontendStack({ stack, app }) {
       path: "frontend",
       // Pass in our environment variables
       environment: {
-        SVELTE_APP_API_URL: api.customDomainUrl || api.url,
-        SVELTE_APP_REGION: app.region,
-        SVELTE_APP_BUCKET: bucket.bucketName,
-        SVELTE_APP_USER_POOL_ID: auth.userPoolId,
-        SVELTE_APP_IDENTITY_POOL_ID: auth.cognitoIdentityPoolId,
-        SVELTE_APP_USER_POOL_CLIENT_ID: auth.userPoolClientId,
+        VITE_APP_API_URL: api.customDomainUrl || api.url,
+        VITE_APP_REGION: app.region,
+        VITE_APP_BUCKET: bucket.bucketName,
+        VITE_APP_USER_POOL_ID: auth.userPoolId,
+        VITE_APP_IDENTITY_POOL_ID: auth.cognitoIdentityPoolId,
+        VITE_APP_USER_POOL_CLIENT_ID: auth.userPoolClientId,
       },
     });
   

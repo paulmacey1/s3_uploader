@@ -1,35 +1,21 @@
 <script>
 	import '../../app.css';
 
-	import { Amplify, Auth } from 'aws-amplify';
+	// import { Amplify, Auth } from 'aws-amplify';
 	import config from '../../config'
 
-	Amplify.configure({
-  Auth: {
-    mandatorySignIn: true,
-    region: config.cognito.REGION,
-    userPoolId: config.cognito.USER_POOL_ID,
-    identityPoolId: config.cognito.IDENTITY_POOL_ID,
-    userPoolWebClientId: config.cognito.APP_CLIENT_ID
-  },
-  Storage: {
-    region: config.s3.REGION,
-    bucket: config.s3.BUCKET,
-    identityPoolId: config.cognito.IDENTITY_POOL_ID
-  },
-  API: {
-    endpoints: [
-      {
-        name: "notes",
-        endpoint: config.apiGateway.URL,
-        region: config.apiGateway.REGION
-      },
-    ]
-  }
-});
+	import {
+	CognitoUserPool,
+	CognitoUserAttribute,
+	CognitoUser,
+	AuthenticationDetails
+} from 'amazon-cognito-identity-js';
 
 
-	import { emailValidator, requiredValidator } from '../../utils/validators.js'
+import * as AWS from 'aws-sdk/global';
+
+
+import { emailValidator, requiredValidator } from '../../utils/validators.js'
 	import { createFieldValidator } from '../../utils/validation.js'
 	
 	const [ validity, validate ] = createFieldValidator(requiredValidator(), emailValidator())
@@ -46,14 +32,67 @@
 
 
 	async function  handleClick(event){
-		console.log(Auth.configure());
-		try {
-		await Auth.signIn(email, password);
-		alert("Logged in");
-	} catch (e) {
-		alert(e.message);
-  }
+		//console.log(Auth.configure());
+	// 	try {
+	// 	await Auth.signIn(email, password);
+	// 	alert("Logged in");
+	// } catch (e) {
+	// 	alert(e.message);
+  //}
 	}
+
+	var authenticationData = {
+	Username: 'admin@example.com',
+	Password: 'Passw0rd!',
+};
+
+var authenticationDetails = new AuthenticationDetails(authenticationData);
+
+var poolData = {
+	UserPoolId: 'us-east-1_1w0FhkRVC', // Your user pool id here
+	ClientId: '3tr343ue0uja70chm6hnggsduc', // Your client id here
+};
+
+
+var userPool = new CognitoUserPool(poolData);
+var userData = {
+	Username: 'admin@example.com',
+	Pool: userPool,
+};
+var cognitoUser = new CognitoUser(userData);
+cognitoUser.authenticateUser(authenticationDetails, {
+	onSuccess: function(result) {
+		var accessToken = result.getAccessToken().getJwtToken();
+
+		//POTENTIAL: Region needs to be set if not already set previously elsewhere.
+		AWS.config.region = 'us-east-1';
+
+		AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+			IdentityPoolId: 'us-east-1:9aa74d3d-6285-4ba2-a204-e87699faa656', // your identity pool id here
+			Logins: {
+				// Change the key below according to the specific region your user pool is in.
+				'cognito-idp.us-east-1.amazonaws.com/us-east-1_1w0FhkRVC': result
+					.getIdToken()
+					.getJwtToken(),
+			},
+		});
+
+		//refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
+		AWS.config.credentials.refresh(error => {
+			if (error) {
+				console.error(error);
+			} else {
+				// Instantiate aws sdk service objects now that the credentials have been updated.
+				// example: var s3 = new AWS.S3();
+				console.log('Successfully logged!');
+			}
+		});
+	},
+
+	onFailure: function(err) {
+		alert(err.message || JSON.stringify(err));
+	},
+});
 
 </script>
 

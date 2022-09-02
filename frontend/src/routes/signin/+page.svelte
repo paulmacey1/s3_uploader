@@ -1,8 +1,11 @@
 <script>
 	import '../../app.css';
 
+	import { error, redirect } from '@sveltejs/kit';
 	// import { Amplify, Auth } from 'aws-amplify';
 	import config from '../../config'
+	
+	import {goto} from '$app/navigation';
 
 	import {
 	CognitoUserPool,
@@ -31,14 +34,10 @@ import { emailValidator, requiredValidator } from '../../utils/validators.js'
 	let password=null
 
 
-	async function  handleClick(event){
-		//console.log(Auth.configure());
-	// 	try {
-	// 	await Auth.signIn(email, password);
-	// 	alert("Logged in");
-	// } catch (e) {
-	// 	alert(e.message);
-  //}
+	async function handleClick(event){
+		console.log("Logged in");
+		
+		goto('/');
 	}
 
 	var authenticationData = {
@@ -49,12 +48,12 @@ import { emailValidator, requiredValidator } from '../../utils/validators.js'
 var authenticationDetails = new AuthenticationDetails(authenticationData);
 
 var poolData = {
-	UserPoolId: 'us-east-1_1w0FhkRVC', // Your user pool id here
-	ClientId: '3tr343ue0uja70chm6hnggsduc', // Your client id here
+	UserPoolId: config.cognito.USER_POOL_ID, // Your user pool id here
+	ClientId: config.cognito.APP_CLIENT_ID, // Your client id here
 };
 
-
 var userPool = new CognitoUserPool(poolData);
+
 var userData = {
 	Username: 'admin@example.com',
 	Pool: userPool,
@@ -65,13 +64,13 @@ cognitoUser.authenticateUser(authenticationDetails, {
 		var accessToken = result.getAccessToken().getJwtToken();
 
 		//POTENTIAL: Region needs to be set if not already set previously elsewhere.
-		AWS.config.region = 'us-east-1';
+		AWS.config.region = config.cognito.REGION;
 
 		AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-			IdentityPoolId: 'us-east-1:9aa74d3d-6285-4ba2-a204-e87699faa656', // your identity pool id here
+			IdentityPoolId: config.cognito.IDENTITY_POOL_ID, // your identity pool id here
 			Logins: {
 				// Change the key below according to the specific region your user pool is in.
-				'cognito-idp.us-east-1.amazonaws.com/us-east-1_1w0FhkRVC': result
+				['cognito-idp.'+ config.cognito.REGION + '.amazonaws.com/' + config.cognito.USER_POOL_ID]: result
 					.getIdToken()
 					.getJwtToken(),
 			},
@@ -85,6 +84,7 @@ cognitoUser.authenticateUser(authenticationDetails, {
 				// Instantiate aws sdk service objects now that the credentials have been updated.
 				// example: var s3 = new AWS.S3();
 				console.log('Successfully logged!');
+				
 			}
 		});
 	},

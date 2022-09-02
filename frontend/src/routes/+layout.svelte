@@ -1,6 +1,5 @@
 <script>
 	import '../app.css';
-	console.log("results"+import.meta.env.VITE_APP_API_URL);
 </script>
 
 <!-- This example requires Tailwind CSS v2.0+ -->

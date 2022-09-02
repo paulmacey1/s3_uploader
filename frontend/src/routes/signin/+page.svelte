@@ -1,15 +1,12 @@
 <script>
 	import '../../app.css';
 
-	import { error, redirect } from '@sveltejs/kit';
-	// import { Amplify, Auth } from 'aws-amplify';
 	import config from '../../config'
 	
 	import {goto} from '$app/navigation';
 
 	import {
 	CognitoUserPool,
-	CognitoUserAttribute,
 	CognitoUser,
 	AuthenticationDetails
 } from 'amazon-cognito-identity-js';
@@ -37,12 +34,12 @@ import { emailValidator, requiredValidator } from '../../utils/validators.js'
 	async function handleClick(event){
 		console.log("Logged in");
 		
-		goto('/');
+		goto('/upload');
 	}
 
 	var authenticationData = {
-	Username: 'admin@example.com',
-	Password: 'Passw0rd!',
+	Username: email,
+	Password: password
 };
 
 var authenticationDetails = new AuthenticationDetails(authenticationData);

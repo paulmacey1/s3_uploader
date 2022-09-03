@@ -36,6 +36,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"amazon-cognito-identity-js": "^5.2.10"
+		"amazon-cognito-identity-js": "^5.2.10",
+		"aws-amplify": "^4.3.34"
 	}
 }

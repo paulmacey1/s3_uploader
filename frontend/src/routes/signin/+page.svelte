@@ -1,95 +1,30 @@
 <script>
 	import '../../app.css';
 
-	import config from '../../config'
-	
-	import {goto} from '$app/navigation';
+	import con
 
-	import {
-	CognitoUserPool,
-	CognitoUser,
-	AuthenticationDetails
-} from 'amazon-cognito-identity-js';
-
-
-import * as AWS from 'aws-sdk/global';
-
-
-import { emailValidator, requiredValidator } from '../../utils/validators.js'
+	import { authenticate } from '../../utils/cognito';
+	import { goto } from '$app/navigation';
+	import { emailValidator, requiredValidator } from '../../utils/validators.js'
 	import { createFieldValidator } from '../../utils/validation.js'
 	
 	const [ validity, validate ] = createFieldValidator(requiredValidator(), emailValidator())
 
-    /**
-* @type {string | null}
-*/
-    let email=null
+	/**
+	* @type {string | null}
+	*/
+		let email=null
 
 	/**
-* @type {string | null}
-*/
-	let password=null
+	* @type {string | null}
+	*/
+		let password=null
 
-
-	async function handleClick(event){
-		console.log("Logged in");
-		
-		goto('/upload');
-	}
-
-	var authenticationData = {
-	Username: email,
-	Password: password
-};
-
-var authenticationDetails = new AuthenticationDetails(authenticationData);
-
-var poolData = {
-	UserPoolId: config.cognito.USER_POOL_ID, // Your user pool id here
-	ClientId: config.cognito.APP_CLIENT_ID, // Your client id here
-};
-
-var userPool = new CognitoUserPool(poolData);
-
-var userData = {
-	Username: 'admin@example.com',
-	Pool: userPool,
-};
-var cognitoUser = new CognitoUser(userData);
-cognitoUser.authenticateUser(authenticationDetails, {
-	onSuccess: function(result) {
-		var accessToken = result.getAccessToken().getJwtToken();
-
-		//POTENTIAL: Region needs to be set if not already set previously elsewhere.
-		AWS.config.region = config.cognito.REGION;
-
-		AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-			IdentityPoolId: config.cognito.IDENTITY_POOL_ID, // your identity pool id here
-			Logins: {
-				// Change the key below according to the specific region your user pool is in.
-				['cognito-idp.'+ config.cognito.REGION + '.amazonaws.com/' + config.cognito.USER_POOL_ID]: result
-					.getIdToken()
-					.getJwtToken(),
-			},
-		});
-
-		//refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
-		AWS.config.credentials.refresh(error => {
-			if (error) {
-				console.error(error);
-			} else {
-				// Instantiate aws sdk service objects now that the credentials have been updated.
-				// example: var s3 = new AWS.S3();
-				console.log('Successfully logged!');
-				
-			}
-		});
-	},
-
-	onFailure: function(err) {
-		alert(err.message || JSON.stringify(err));
-	},
-});
+		async function handleClick(event){
+			console.log("Logged in");
+			result=authenticate(email,password, )
+			goto('/upload');
+		}
 
 </script>
 
